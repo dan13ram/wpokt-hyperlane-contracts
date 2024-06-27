@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.20;
 
-import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {EIP712} from "@open-zeppelin/contracts/utils/cryptography/EIP712.sol";
+import {ECDSA} from "@open-zeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {Ownable} from "@open-zeppelin/contracts/access/Ownable.sol";
 import {IWarpISM} from "@interfaces/IWarpISM.sol";
 import {Message} from "@hyperlane/libs/Message.sol";
 
@@ -14,7 +14,7 @@ contract WarpISM is EIP712, IWarpISM, Ownable {
     mapping(address => bool) public validators;
 
     uint256 public validatorCount;
-    uint256 public signerThreshold = 50; // out of 100
+    uint256 public signerThreshold = 7; // out of validator count
 
     uint256 public constant SIGNATURE_SIZE = 65;
 
@@ -22,10 +22,9 @@ contract WarpISM is EIP712, IWarpISM, Ownable {
         "Message(uint8 version,uint32 nonce,uint32 originDomain,bytes32 sender,uint32 destinationDomain,bytes32 recipient,bytes messageBody)"
     );
 
-    constructor(string memory name_, string memory version_, address initialOwner_)
-        EIP712(name_, version_)
-        Ownable(initialOwner_)
-    {}
+    constructor(string memory name_, string memory version_, address initialOwner_) EIP712(name_, version_) {
+        transferOwnership(initialOwner_);
+    }
 
     /*//////////////////////////////////////////////////////////////
     // Public View
@@ -83,7 +82,7 @@ contract WarpISM is EIP712, IWarpISM, Ownable {
         uint256 signatureCount = signatures.length;
 
         if (signatureCount < signerThreshold) {
-            revert InvalidSignatures();
+            revert CountBelowThreshold();
         }
 
         for (uint256 i = 0; i < signatureCount;) {

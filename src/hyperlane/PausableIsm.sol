@@ -2,7 +2,7 @@
 pragma solidity >=0.8.20;
 
 // ============ External Imports ============
-import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
+import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 // ============ Internal Imports ============
@@ -11,7 +11,7 @@ import {IInterchainSecurityModule} from "@hyperlane/interfaces/IInterchainSecuri
 contract PausableIsm is IInterchainSecurityModule, Ownable, Pausable {
     uint8 public constant override moduleType = uint8(Types.NULL);
 
-    constructor(address owner) Ownable(owner) Pausable() {}
+    constructor(address owner) Pausable() {}
 
     /**
      * @inheritdoc IInterchainSecurityModule

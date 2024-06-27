@@ -6,7 +6,7 @@ import {IInterchainSecurityModule} from "@hyperlane/interfaces/IInterchainSecuri
 import {Message} from "@hyperlane/libs/Message.sol";
 import {IOmniToken} from "@interfaces/IOmniToken.sol";
 import {IWarpController} from "@interfaces/IWarpController.sol";
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControl} from "@open-zeppelin/contracts/access/AccessControl.sol";
 
 abstract contract WarpMintController is AccessControl, IWarpController {
     using Message for bytes;
@@ -33,9 +33,10 @@ abstract contract WarpMintController is AccessControl, IWarpController {
     // @param _messageBody The message body
     function handle(uint32, bytes32, bytes calldata _messageBody) external virtual onlyRole(MAIL_BOX_ROLE) {
         // Decode the message body
-        (address recipient, uint256 amount,) = abi.decode(_messageBody, (address, uint256, address));
+        (address recipient, uint256 amount, address sender) = abi.decode(_messageBody, (address, uint256, address));
         // Mint the tokens to the recipient
         _token.mint(recipient, amount);
+        emit WarpMint(recipient, amount, sender);
     }
 
     // @notice This function allows the admin to change the inter-chain security module
@@ -70,6 +71,9 @@ abstract contract WarpMintController is AccessControl, IWarpController {
         virtual
     {
         (, uint256 amount, address sender) = abi.decode(messageBody, (address, uint256, address));
+        if (sender != msg.sender) {
+            revert SenderMustBeCaller();
+        }
         _token.burnFrom(sender, amount);
         // Initiate the order through the mailbox
         // The backend consumes the dispatch event emitted by the mailbox
