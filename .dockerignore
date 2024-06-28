@@ -4,3 +4,5 @@ out
 README.md
 LICENSE
 *.log
+.env
+.vscode

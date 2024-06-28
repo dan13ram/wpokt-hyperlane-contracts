@@ -30,8 +30,6 @@ contract TestnetDeployScript is Script {
     uint256 internal constant _mintLimit = 10 ** 18;
     uint256 internal constant _mintPerSecond = 10 ** 16;
 
-    bytes32 internal constant _SALT = keccak256("POKT");
-
     struct NetworkConfig {
         address[] validators;
         uint256 signerThreshold;
@@ -62,23 +60,23 @@ contract TestnetDeployScript is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        _defaultIsm = new PausableIsm{salt: _SALT}(_owner);
+        _defaultIsm = new PausableIsm(_owner);
         console2.log("Deployed PausableIsm at: ", address(_defaultIsm));
 
-        _defaultHook = new TestPostDispatchHook{salt: _SALT}();
+        _defaultHook = new TestPostDispatchHook();
         console2.log("Deployed TestPostDispatchHook at: ", address(_defaultHook));
 
-        _mailbox = new Mailbox{salt: _SALT}(_chainId);
+        _mailbox = new Mailbox(_chainId);
         _mailbox.initialize(_owner, address(_defaultIsm), address(_defaultHook), address(_defaultHook));
         console2.log("Deployed Mailbox at: ", address(_mailbox));
 
-        _warpISM = new WarpISM{salt: _SALT}("WarpISM", "1", _owner);
+        _warpISM = new WarpISM("WarpISM", "1", _owner);
         console2.log("Deployed WarpISM at: ", address(_warpISM));
 
-        _token = new OmniToken{salt: _SALT}(_owner, _owner, "Wrapped POKT", "wPOKT");
+        _token = new OmniToken(_owner, _owner, "Wrapped POKT", "wPOKT");
         console2.log("Deployed Token at: ", address(_token));
 
-        _mintController = new wPOKTMintController{salt: _SALT}(
+        _mintController = new wPOKTMintController(
             address(_mailbox), address(_token), address(_warpISM), _owner, _mintLimit, _mintPerSecond
         );
         console2.log("Deployed MintController at: ", address(_mintController));

@@ -8,3 +8,6 @@ deploy_testnet:; forge script TestnetDeployScript --rpc-url ${network} --private
 
 .PHONY: docker_build
 docker_build:; docker buildx build . -t dan13ram/wpokt-hyperlane-contracts:v0.0.1 --file ./docker/Dockerfile
+
+.PHONY: docker_push
+docker_push:; docker push dan13ram/wpokt-hyperlane-contracts:v0.0.1
